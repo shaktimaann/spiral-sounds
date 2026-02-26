@@ -1,13 +1,39 @@
 import express from 'express'
 import { productsRouter } from './routes/product.js'
+import { authRouter } from './routes/auth.js'
+import session from 'express-session'
+import dotenv from 'dotenv'
+import { meRouter } from './routes/me.js'
+import {cartRouter} from './routes/cart.js'
+
+dotenv.config()
 
 
 const app = express()
 const PORT = 8000
+const secret = process.env.SPIRAL_SESSION_SECRET
+
+app.use(express.json());
+
+app.use(session({
+  secret: secret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}))
+
 
 app.use(express.static('public'))
 
+
 app.use('/api/products',productsRouter)
+app.use('/api/auth/me', meRouter)
+app.use('/api/auth',authRouter)
+app.use('/api/cart',cartRouter)
 
 
 app.listen(PORT, () => {
